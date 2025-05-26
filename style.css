@@ -1,0 +1,270 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Courier New', monospace;
+    background: #000;
+    color: #00ff00;
+    min-height: 100vh;
+    user-select: none;
+    overflow: hidden;
+}
+
+.game-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 1rem;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 1rem;
+    background: rgba(0, 255, 0, 0.1);
+    padding: 1rem;
+    border: 2px solid #00ff00;
+    border-radius: 5px;
+}
+
+header h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 10px #00ff00;
+    letter-spacing: 3px;
+}
+
+.hud {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.stat {
+    padding: 0.5rem 1rem;
+    border: 1px solid #00ff00;
+    border-radius: 3px;
+    background: rgba(0, 255, 0, 0.1);
+    text-shadow: 0 0 5px #00ff00;
+}
+
+.game-area {
+    position: relative;
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#gameCanvas {
+    border: 2px solid #00ff00;
+    background: #000;
+    box-shadow: 0 0 20px #00ff00;
+    image-rendering: pixelated;
+}
+
+.game-overlay {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 600px;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #00ff00;
+}
+
+.overlay-content {
+    text-align: center;
+    padding: 2rem;
+    border: 1px solid #00ff00;
+    background: rgba(0, 255, 0, 0.05);
+}
+
+.overlay-content h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 15px #00ff00;
+    letter-spacing: 2px;
+}
+
+.overlay-content p {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 5px #00ff00;
+}
+
+.controls-info {
+    background: rgba(0, 255, 0, 0.1);
+    padding: 1rem;
+    border: 1px solid #00ff00;
+    margin: 1rem 0;
+}
+
+.controls-info p {
+    margin: 0.3rem 0;
+    font-size: 0.9rem;
+}
+
+.game-button {
+    background: rgba(0, 255, 0, 0.2);
+    color: #00ff00;
+    border: 2px solid #00ff00;
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    font-family: 'Courier New', monospace;
+    cursor: pointer;
+    margin: 0.5rem;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.game-button:hover {
+    background: rgba(0, 255, 0, 0.3);
+    box-shadow: 0 0 15px #00ff00;
+    text-shadow: 0 0 10px #00ff00;
+}
+
+.roguelike-panel {
+    position: fixed;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 200px;
+    background: rgba(0, 0, 0, 0.9);
+    border: 2px solid #00ff00;
+    padding: 1rem;
+    font-size: 0.8rem;
+}
+
+.roguelike-panel h3 {
+    text-align: center;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 5px #00ff00;
+}
+
+.equipment-slots,
+.stats-panel {
+    margin-bottom: 1rem;
+}
+
+.slot,
+.stat-item {
+    padding: 0.3rem;
+    border: 1px solid #00ff00;
+    margin-bottom: 0.3rem;
+    background: rgba(0, 255, 0, 0.05);
+}
+
+footer {
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    opacity: 0.7;
+    text-shadow: 0 0 5px #00ff00;
+}
+
+/* Animations */
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.3; }
+}
+
+.blinking {
+    animation: blink 1s infinite;
+}
+
+@keyframes glow {
+    0%, 100% { box-shadow: 0 0 5px #00ff00; }
+    50% { box-shadow: 0 0 20px #00ff00, 0 0 30px #00ff00; }
+}
+
+.glowing {
+    animation: glow 2s infinite;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 850px) {
+    .game-container {
+        padding: 0.5rem;
+    }
+    
+    header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .hud {
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    #gameCanvas {
+        width: 100%;
+        height: auto;
+        max-width: 400px;
+        max-height: 300px;
+    }
+    
+    .game-overlay {
+        width: 100%;
+        max-width: 400px;
+        height: auto;
+        max-height: 300px;
+    }
+    
+    .overlay-content h2 {
+        font-size: 1.8rem;
+    }
+    
+    .roguelike-panel {
+        position: static;
+        transform: none;
+        width: 100%;
+        margin-top: 1rem;
+    }
+}
+
+/* Game state styles */
+.game-overlay.hidden {
+    display: none;
+}
+
+/* Retro screen effect */
+#gameCanvas::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(0, 255, 0, 0.03) 2px,
+            rgba(0, 255, 0, 0.03) 4px
+        );
+    pointer-events: none;
+}
+
+/* Power-up effects (for future use) */
+.power-up-active {
+    color: #ffff00 !important;
+    text-shadow: 0 0 10px #ffff00 !important;
+}
+
+.damage-taken {
+    color: #ff0000 !important;
+    text-shadow: 0 0 10px #ff0000 !important;
+}

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Invaders - ローグライク</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <header>
+            <h1>👾 Space Invaders</h1>
+            <div class="hud">
+                <div class="stat">スコア: <span id="score">0</span></div>
+                <div class="stat">ライフ: <span id="lives">3</span></div>
+                <div class="stat">ウェーブ: <span id="wave">1</span></div>
+                <div class="stat">レベル: <span id="level">1</span></div>
+            </div>
+        </header>
+        
+        <div class="game-area">
+            <canvas id="gameCanvas" width="800" height="600"></canvas>
+            
+            <div class="game-overlay" id="gameOverlay">
+                <div class="overlay-content">
+                    <h2 id="overlayTitle">Space Invaders</h2>
+                    <p id="overlayMessage">矢印キーで移動、スペースで攻撃</p>
+                    <div class="controls-info">
+                        <p>操作方法:</p>
+                        <p>← → : 移動</p>
+                        <p>スペース : 射撃</p>
+                        <p>P : ポーズ</p>
+                    </div>
+                    <button id="startButton" class="game-button">ゲーム開始</button>
+                    <button id="restartButton" class="game-button" style="display: none;">リスタート</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Roguelike Elements Panel (for future expansion) -->
+        <div class="roguelike-panel" id="roguelikePanel" style="display: none;">
+            <h3>装備・スキル</h3>
+            <div class="equipment-slots">
+                <div class="slot" id="weaponSlot">武器: 基本レーザー</div>
+                <div class="slot" id="shieldSlot">シールド: なし</div>
+            </div>
+            <div class="stats-panel">
+                <div class="stat-item">攻撃力: <span id="attack">1</span></div>
+                <div class="stat-item">防御力: <span id="defense">0</span></div>
+                <div class="stat-item">速度: <span id="speed">1</span></div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>インベーダーを倒してスコアを稼ごう！</p>
+        </footer>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
