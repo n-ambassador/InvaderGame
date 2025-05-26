@@ -32,6 +32,9 @@ class SpaceInvaders {
         this.invaderDirection = 1;
         this.invaderDropDistance = 20;
         
+        // Barriers/Walls
+        this.barriers = [];
+        
         // Particles for effects
         this.particles = [];
         
@@ -57,6 +60,7 @@ class SpaceInvaders {
     
     init() {
         this.createInvaderWave();
+        this.createBarriers();
         this.bindEvents();
         this.updateUI();
         this.gameLoop();
@@ -113,6 +117,105 @@ class SpaceInvaders {
                 });
             }
         }
+    }
+    
+    createBarriers() {
+        this.barriers = [];
+        const barrierCount = 4;
+        const barrierWidth = 80;
+        const barrierHeight = 60;
+        const spacing = (this.canvas.width - (barrierCount * barrierWidth)) / (barrierCount + 1);
+        
+        for (let i = 0; i < barrierCount; i++) {
+            const barrier = {
+                x: spacing + i * (barrierWidth + spacing),
+                y: this.canvas.height - 200,
+                width: barrierWidth,
+                height: barrierHeight,
+                blocks: []
+            };
+            
+            // Create pixelated barrier structure
+            const blockSize = 4;
+            const blocksX = barrierWidth / blockSize;
+            const blocksY = barrierHeight / blockSize;
+            
+            for (let row = 0; row < blocksY; row++) {
+                barrier.blocks[row] = [];
+                for (let col = 0; col < blocksX; col++) {
+                    // Create barrier shape (arch-like)
+                    const centerX = blocksX / 2;
+                    const distFromCenter = Math.abs(col - centerX);
+                    const isTopHalf = row < blocksY * 0.6;
+                    const isBottomGap = row > blocksY * 0.7 && distFromCenter < blocksX * 0.3;
+                    
+                    const shouldHaveBlock = isTopHalf || !isBottomGap;
+                    barrier.blocks[row][col] = shouldHaveBlock ? 1 : 0;
+                }
+            }
+            
+            this.barriers.push(barrier);
+        }
+    }
+    
+    drawBarrier(barrier) {
+        const blockSize = 4;
+        this.ctx.fillStyle = '#00ff00';
+        
+        for (let row = 0; row < barrier.blocks.length; row++) {
+            for (let col = 0; col < barrier.blocks[row].length; col++) {
+                if (barrier.blocks[row][col]) {
+                    const x = barrier.x + col * blockSize;
+                    const y = barrier.y + row * blockSize;
+                    this.ctx.fillRect(x, y, blockSize, blockSize);
+                }
+            }
+        }
+    }
+    
+    damageBarrier(barrier, x, y, radius = 8) {
+        const blockSize = 4;
+        const startCol = Math.floor((x - barrier.x - radius) / blockSize);
+        const endCol = Math.ceil((x - barrier.x + radius) / blockSize);
+        const startRow = Math.floor((y - barrier.y - radius) / blockSize);
+        const endRow = Math.ceil((y - barrier.y + radius) / blockSize);
+        
+        for (let row = Math.max(0, startRow); row < Math.min(barrier.blocks.length, endRow); row++) {
+            for (let col = Math.max(0, startCol); col < Math.min(barrier.blocks[row].length, endCol); col++) {
+                const blockX = barrier.x + col * blockSize + blockSize / 2;
+                const blockY = barrier.y + row * blockSize + blockSize / 2;
+                const distance = Math.sqrt((x - blockX) ** 2 + (y - blockY) ** 2);
+                
+                if (distance <= radius && barrier.blocks[row][col]) {
+                    barrier.blocks[row][col] = 0;
+                    this.createParticles(blockX, blockY, '#00ff00', 2);
+                }
+            }
+        }
+    }
+    
+    checkBarrierCollision(bullet) {
+        for (let barrier of this.barriers) {
+            if (bullet.x + bullet.width > barrier.x &&
+                bullet.x < barrier.x + barrier.width &&
+                bullet.y + bullet.height > barrier.y &&
+                bullet.y < barrier.y + barrier.height) {
+                
+                // Check specific block collision
+                const blockSize = 4;
+                const col = Math.floor((bullet.x + bullet.width / 2 - barrier.x) / blockSize);
+                const row = Math.floor((bullet.y + bullet.height / 2 - barrier.y) / blockSize);
+                
+                if (row >= 0 && row < barrier.blocks.length &&
+                    col >= 0 && col < barrier.blocks[row].length &&
+                    barrier.blocks[row][col]) {
+                    
+                    this.damageBarrier(barrier, bullet.x + bullet.width / 2, bullet.y + bullet.height / 2);
+                    return true;
+                }
+            }
+        }
+        return false;
     }
     
     drawPlayer() {
@@ -220,13 +323,14 @@ class SpaceInvaders {
     }
     
     invaderShoot(invader) {
-        if (Math.random() < 0.02 / this.level) { // Shooting frequency increases with level
+        // Much reduced shooting frequency
+        if (Math.random() < 0.003 + (this.level * 0.001)) { // Much lower base rate
             this.enemyBullets.push({
                 x: invader.x + invader.width / 2 - 2,
                 y: invader.y + invader.height,
                 width: 4,
                 height: 8,
-                speed: 3 + this.level * 0.5
+                speed: 3 + this.level * 0.3
             });
         }
     }
@@ -256,6 +360,12 @@ class SpaceInvaders {
         this.playerBullets.forEach((bullet, index) => {
             bullet.y -= bullet.speed;
             
+            // Check barrier collision
+            if (this.checkBarrierCollision(bullet)) {
+                this.playerBullets.splice(index, 1);
+                return;
+            }
+            
             // Remove bullets that go off screen
             if (bullet.y < 0) {
                 this.playerBullets.splice(index, 1);
@@ -265,6 +375,12 @@ class SpaceInvaders {
         // Update enemy bullets
         this.enemyBullets.forEach((bullet, index) => {
             bullet.y += bullet.speed;
+            
+            // Check barrier collision
+            if (this.checkBarrierCollision(bullet)) {
+                this.enemyBullets.splice(index, 1);
+                return;
+            }
             
             // Remove bullets that go off screen
             if (bullet.y > this.canvas.height) {
@@ -397,6 +513,7 @@ class SpaceInvaders {
     
     nextWave() {
         this.createInvaderWave();
+        this.createBarriers(); // Rebuild barriers each wave
         this.playerBullets = [];
         this.enemyBullets = [];
         this.particles = [];
@@ -423,6 +540,7 @@ class SpaceInvaders {
         this.enemyBullets = [];
         this.particles = [];
         this.createInvaderWave();
+        this.createBarriers();
         this.gameState = 'playing';
         document.getElementById('startButton').style.display = 'inline-block';
         document.getElementById('restartButton').style.display = 'none';
@@ -457,6 +575,9 @@ class SpaceInvaders {
         this.drawPlayer();
         
         this.invaders.forEach(invader => this.drawInvader(invader));
+        
+        // Draw barriers
+        this.barriers.forEach(barrier => this.drawBarrier(barrier));
         
         this.playerBullets.forEach(bullet => this.drawBullet(bullet, '#00ff00'));
         this.enemyBullets.forEach(bullet => this.drawBullet(bullet, '#ff0080'));
